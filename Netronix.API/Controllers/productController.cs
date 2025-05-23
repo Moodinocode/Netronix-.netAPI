@@ -25,8 +25,7 @@ namespace Netronix.API.Controllers
         }
 
         [HttpGet]
-       // [Route("list")]
-        public async Task<IActionResult> list()
+        public async Task<IActionResult> GetAll()
         {
             var productsDomainModel = await productRepository.GetAllAsync();
             return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));
@@ -38,45 +37,32 @@ namespace Netronix.API.Controllers
         public async Task<IActionResult> GetBestSellers()
         {
             var productsDomainModel = await productRepository.GetBestSellersAsync();
-                
-            var productsdto = new List<ProductDto>();
-            foreach (var product in productsDomainModel)
-            {
-                var productdto = new ProductDto
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    brand = product.brand,
-                    Description = product.Description,
-                    Price = product.Price,
-                    ImageUrls = product.ImageUrls,
-                    IsBestSeller = product.IsBestSeller,
-                    Variants = product.Variants,
-                    ProductTags = product.ProductTags,
-                    DateCreated = product.DateCreated,
-                    Inventory = product.Inventory
-                };
-                productsdto.Add(productdto);
-            }
-            return Ok(productsdto);
+            return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));
         }
 
         [HttpGet]
-        [Route("featured")]
-        public async Task<IActionResult> GetTags(int id) {
-            return Ok(new { message = "Tags" });
+        [Route("tags")]
+        public async Task<IActionResult> GetTags() {
+            var tags = await productRepository.GetTagsAsync();
+            return Ok(mapper.Map<List<TagDtocs>>(tags));
         }
 
         [HttpGet]
-        [Route("productsbytag")]
-        public async Task<IActionResult> GetProductsbyTag(int id) {
-            return Ok(new { message = "Products with given tag" });
+        [Route("tags/{id:Guid}")]
+        public async Task<IActionResult> GetProductsbyTag([FromRoute] Guid id) {
+            var productsDomainModel = await productRepository.GetProductsByTagAsync(id);
+            return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));
         }
 
         [HttpGet]
         [Route("{id:Guid}")]
         public async Task<IActionResult> GetProductbyId([FromRoute] Guid id) {
-            return Ok(new { message = "Product with given id" });
+            var productDomainModel = await productRepository.GetByIdAsync(id);
+            if (productDomainModel == null)
+            {
+                return NotFound();
+            }
+            return Ok(mapper.Map<ProductDto>(productDomainModel));
         }
 
         [HttpPost] 

@@ -9,6 +9,7 @@ namespace Netronix.API.Mappings
         public AutoMapperProfiles()
         {
             CreateMap<Product,ProductDto>().ReverseMap();
+            CreateMap<Tag, TagDtocs>().ReverseMap();
         }
     }
 }

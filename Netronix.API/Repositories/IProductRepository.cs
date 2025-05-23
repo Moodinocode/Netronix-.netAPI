@@ -7,7 +7,7 @@ namespace Netronix.API.Repositories
         Task<List<Product>> GetAllAsync();
         Task<List<Product>> GetBestSellersAsync();
         Task<Product?> GetByIdAsync(Guid id);
-        Task<List<Product>> GetProductsByCategoryAsync(string category);
+        Task<List<Product>> GetProductsByTagAsync(Guid id);
 
         Task<List<Tag>> GetTagsAsync();
         Task<Product> AddProductAsync(Product product);
