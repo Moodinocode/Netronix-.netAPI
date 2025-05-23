@@ -1,5 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Netronix.API.Data;
+using Netronix.API.Models.Domains;
+using Netronix.API.Models.DTOs;
+using Netronix.API.Repositories;
 
 namespace Netronix.API.Controllers
 {
@@ -7,54 +13,87 @@ namespace Netronix.API.Controllers
     [ApiController]
     public class productController : ControllerBase
     {
+        private readonly NetronixDbContext dbContext;
+        private readonly IProductRepository productRepository;
+        private readonly IMapper mapper;
+
+        public productController(NetronixDbContext dbContext, IProductRepository productRepository,IMapper mapper)
+        {
+            this.dbContext = dbContext;
+            this.productRepository = productRepository;
+            this.mapper = mapper;
+        }
+
         [HttpGet]
-        [Route("list")]
-        public IActionResult list()
+       // [Route("list")]
+        public async Task<IActionResult> list()
         {
-            // This is a placeholder for the actual implementation
-            return Ok(new { message = "List of products" });
+            var productsDomainModel = await productRepository.GetAllAsync();
+            return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));
+            
         }
 
-       [HttpGet]
-       [Route("bestSellers")]
-       public IActionResult GetBestSellers(int id) 
+        [HttpGet]
+        [Route("bestSellers")]
+        public async Task<IActionResult> GetBestSellers()
         {
-            return Ok(new { message = "Best Sellers" });
+            var productsDomainModel = await productRepository.GetBestSellersAsync();
+                
+            var productsdto = new List<ProductDto>();
+            foreach (var product in productsDomainModel)
+            {
+                var productdto = new ProductDto
+                {
+                    Id = product.Id,
+                    Name = product.Name,
+                    brand = product.brand,
+                    Description = product.Description,
+                    Price = product.Price,
+                    ImageUrls = product.ImageUrls,
+                    IsBestSeller = product.IsBestSeller,
+                    Variants = product.Variants,
+                    ProductTags = product.ProductTags,
+                    DateCreated = product.DateCreated,
+                    Inventory = product.Inventory
+                };
+                productsdto.Add(productdto);
+            }
+            return Ok(productsdto);
         }
 
-       [HttpGet]
-       [Route("featured")]
-        public IActionResult GetTags(int id) {
+        [HttpGet]
+        [Route("featured")]
+        public async Task<IActionResult> GetTags(int id) {
             return Ok(new { message = "Tags" });
         }
 
         [HttpGet]
         [Route("productsbytag")]
-        public IActionResult GetProductsbyTag(int id) {
+        public async Task<IActionResult> GetProductsbyTag(int id) {
             return Ok(new { message = "Products with given tag" });
         }
 
         [HttpGet]
-        [Route("productbyid")]
-        public IActionResult GetProductbyId(int id) {
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> GetProductbyId([FromRoute] Guid id) {
             return Ok(new { message = "Product with given id" });
         }
 
         [HttpPost] 
         [Route("addproduct")]
-        public IActionResult AddProduct() {
+        public async Task<IActionResult> AddProduct() {
             return Ok(new { message = "Product Added" });
         }
 
         [HttpDelete]
             [Route("deleteproduct")]
-        public IActionResult DeleteProduct(int id) {
+        public async Task<IActionResult> DeleteProduct(int id) {
             return Ok(new { message = "Product Deleted" });
         }
 
         [HttpPut]
         [Route("updateproduct")]
-        public IActionResult UpdateProduct(int id) {
+        public async Task<IActionResult> UpdateProduct(int id) {
         return Ok(new { message = "Best Sellers" });}
 
 

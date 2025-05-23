@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Netronix.API.Data;
+using Netronix.API.Mappings;
+using Netronix.API.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<NetronixDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("NetronixConnectionString")));
+
+
+builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
+
+
 
 var app = builder.Build();
 
