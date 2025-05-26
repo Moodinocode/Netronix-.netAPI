@@ -13,13 +13,22 @@ namespace Netronix.API.Repositories
             this.dbContext = dbContext;
         }
         public async Task<Product> AddProductAsync(Product product)
-        {
-            throw new NotImplementedException();
+        {   
+            var productId = Guid.NewGuid();
+            product.Id = productId;
+            product.DateCreated = DateTime.UtcNow;
+            await dbContext.Products.AddAsync(product);
+            await dbContext.SaveChangesAsync();
+            return product;
         }
 
-        public Task<Product?> DeleteProductAsync(Guid id)
+        public async Task<Product?> DeleteProductAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product == null) return null;
+            dbContext.Products.Remove(product);
+            await dbContext.SaveChangesAsync();
+            return product;
         }
 
         public async Task<List<Product>> GetAllAsync()
@@ -32,12 +41,14 @@ namespace Netronix.API.Repositories
             return await dbContext.Products.Where(x => x.IsBestSeller == true).ToListAsync();
         }
 
-        public Task<Product?> GetByIdAsync(Guid id)
+        public async Task<Product?> GetByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var product = await  dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (product == null) return null;
+            return product;
         }
 
-        public Task<List<Product>> GetProductsByCategoryAsync(string category)
+        public Task<List<Product>> GetProductsByTagAsync(Guid id)
         {
             throw new NotImplementedException();
         }
@@ -47,9 +58,23 @@ namespace Netronix.API.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Product?> UpdateProductAsync(Product product)
+        public async Task<Product?> UpdateProductAsync(Guid id,Product product)
         {
-            throw new NotImplementedException();
+            var existing = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+            if (existing == null) return null;
+            existing.Name = product.Name;
+            existing.brand = product.brand;
+            existing.Description = product.Description;
+            existing.Price = product.Price;
+            existing.ImageUrls = product.ImageUrls;
+            existing.IsBestSeller = product.IsBestSeller;
+            existing.Variants = product.Variants;
+            existing.ProductTags = product.ProductTags;
+            existing.Inventory = product.Inventory;
+            await dbContext.SaveChangesAsync();
+            return existing;
+
+
         }
     }
 }

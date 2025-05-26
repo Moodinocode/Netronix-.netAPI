@@ -11,7 +11,7 @@ namespace Netronix.API.Repositories
 
         Task<List<Tag>> GetTagsAsync();
         Task<Product> AddProductAsync(Product product);
-        Task<Product?> UpdateProductAsync(Product product);
+        Task<Product?> UpdateProductAsync(Guid id,Product product);
         Task<Product?> DeleteProductAsync(Guid id);
 
     }

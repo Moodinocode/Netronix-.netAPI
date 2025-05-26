@@ -67,20 +67,31 @@ namespace Netronix.API.Controllers
 
         [HttpPost] 
         [Route("addproduct")]
-        public async Task<IActionResult> AddProduct() {
-            return Ok(new { message = "Product Added" });
+        public async Task<IActionResult> AddProduct([FromBody] AddProductRequestDto addProductRequestDto) {
+            var product = await productRepository.AddProductAsync(mapper.Map<Product>(addProductRequestDto));
+            return Ok(mapper.Map<ProductDto>(product));
         }
 
         [HttpDelete]
             [Route("deleteproduct")]
-        public async Task<IActionResult> DeleteProduct(int id) {
-            return Ok(new { message = "Product Deleted" });
+        public async Task<IActionResult> DeleteProduct([FromBody] Guid id) {
+            var product = await productRepository.DeleteProductAsync(id);
+            if (product == null) {
+                return NotFound();
+            }
+            return Ok(mapper.Map<ProductDto>(product));
         }
 
         [HttpPut]
         [Route("updateproduct")]
-        public async Task<IActionResult> UpdateProduct(int id) {
-        return Ok(new { message = "Best Sellers" });}
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequestDto productRequestDto, [FromBody] Guid id) {
+            var product = mapper.Map<Product>(productRequestDto);
+            product = await productRepository.UpdateProductAsync(id,product);
+            if (product == null) {
+                return NotFound();
+            }
+            return Ok(mapper.Map<ProductDto>(product)); 
+        }
 
 
 
