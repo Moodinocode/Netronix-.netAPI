@@ -13,13 +13,11 @@ namespace Netronix.API.Controllers
     [ApiController]
     public class productController : ControllerBase
     {
-        private readonly NetronixDbContext dbContext;
         private readonly IProductRepository productRepository;
         private readonly IMapper mapper;
 
-        public productController(NetronixDbContext dbContext, IProductRepository productRepository,IMapper mapper)
+        public productController(IProductRepository productRepository,IMapper mapper)
         {
-            this.dbContext = dbContext;
             this.productRepository = productRepository;
             this.mapper = mapper;
         }
@@ -40,17 +38,11 @@ namespace Netronix.API.Controllers
             return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));
         }
 
-        [HttpGet]
-        [Route("tags")]
-        public async Task<IActionResult> GetTags() {
-            var tags = await productRepository.GetTagsAsync();
-            return Ok(mapper.Map<List<TagDtocs>>(tags));
-        }
 
         [HttpGet]
-        [Route("tags/{id:Guid}")]
+        [Route("tag/{id:Guid}")]
         public async Task<IActionResult> GetProductsbyTag([FromRoute] Guid id) {
-            var productsDomainModel = await productRepository.GetProductsByTagAsync(id);
+           var productsDomainModel = await productRepository.GetProductsByTagAsync(id);
             return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));
         }
 
@@ -66,15 +58,14 @@ namespace Netronix.API.Controllers
         }
 
         [HttpPost] 
-        [Route("addproduct")]
         public async Task<IActionResult> AddProduct([FromBody] AddProductRequestDto addProductRequestDto) {
             var product = await productRepository.AddProductAsync(mapper.Map<Product>(addProductRequestDto));
             return Ok(mapper.Map<ProductDto>(product));
         }
 
         [HttpDelete]
-            [Route("deleteproduct")]
-        public async Task<IActionResult> DeleteProduct([FromBody] Guid id) {
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> DeleteProduct([FromRoute] Guid id) {
             var product = await productRepository.DeleteProductAsync(id);
             if (product == null) {
                 return NotFound();
@@ -83,8 +74,8 @@ namespace Netronix.API.Controllers
         }
 
         [HttpPut]
-        [Route("updateproduct")]
-        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductRequestDto productRequestDto, [FromBody] Guid id) {
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, UpdateProductRequestDto productRequestDto) {
             var product = mapper.Map<Product>(productRequestDto);
             product = await productRepository.UpdateProductAsync(id,product);
             if (product == null) {

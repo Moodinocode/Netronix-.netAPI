@@ -16,6 +16,8 @@ builder.Services.AddDbContext<NetronixDbContext>(options => options.UseSqlServer
 
 
 builder.Services.AddScoped<IProductRepository, SQLProductRepository>();
+builder.Services.AddScoped<ITagRepository, SQLTagRepository>();
+builder.Services.AddScoped<IOrderRepository, SQLOrderRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 

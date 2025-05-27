@@ -11,9 +11,9 @@ namespace Netronix.API.Models.DTOs
         public List<string>? ImageUrls { get; set; } 
 
         public bool IsBestSeller { get; set; }
-        public List<ProductVariant> Variants { get; set; } = new();
-        public List<ProductTags> ProductTags { get; set; } = new();
+        public List<VariantsDto> Variants { get; set; } = new();
+        public List<Guid> ProductTags { get; set; } = new();
 
-        public List<InventoryItem> Inventory { get; set; } = new();
+        public List<InventoryDto> Inventory { get; set; } = new();
     }
 }

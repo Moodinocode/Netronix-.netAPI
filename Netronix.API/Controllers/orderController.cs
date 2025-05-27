@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Netronix.API.Models.DTOs;
+using Netronix.API.Repositories;
 
 namespace Netronix.API.Controllers
 {
@@ -7,40 +10,55 @@ namespace Netronix.API.Controllers
     [ApiController]
     public class orderController : ControllerBase
     {
+        private readonly IMapper mapper;
+        private readonly IOrderRepository orderRepository;
+
+        public orderController(IMapper mapper, IOrderRepository orderRepository)
+        {
+            this.mapper = mapper;
+            this.orderRepository = orderRepository;
+        }
         [HttpPost]
-        [Route("create-order")]
-        public IActionResult CreateOrder()
+        [Route("user/{Userid:Guid}")]
+        public async Task<IActionResult> CreateOrder([FromRoute] Guid Userid)
         {
             // This is a placeholder for the actual implementation
             return Ok(new { message = "Order created" });
         }
        [HttpPost]
-       [Route("create-order-guest")]
-        public IActionResult CreateOrderGuest()//might keep it same and make it based on the dto
+        public async Task<IActionResult> CreateOrderGuest()//might keep it same and make it based on the dto
         {
             // This is a placeholder for the actual implementation
             return Ok(new { message = "Order created" });
         }
         [HttpGet]
-        [Route("get-order-status")]
-        public IActionResult GetAllOrders() {
-            return Ok(new { message = "All Orders" });
+        public async Task<IActionResult> GetAllOrders() {
+            return Ok(await orderRepository.GetAllAsync());
         }
         [HttpGet]
-        [Route("get-order-status/{id}")]
-        public IActionResult GetOrderById(int id) {
-            return Ok(new { message = "Order by ID" });
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> GetOrderById([FromRoute] Guid id) {
+            return Ok(await orderRepository.GetByIdAsync(id));
         }
         [HttpGet]
-        [Route("get-order-status-by-user/{id}")]
-        public IActionResult GetOrdersByUserId(int id) {
+        [Route("user/{Userid:Guid}")]
+        public async Task<IActionResult> GetOrdersByUserId([FromRoute] Guid Userid) {
             return Ok(new { message = "Order by user ID" });
         }
 
-        [HttpPost]
-        [Route("update-order-status/{id}")]
-        public IActionResult UpdateOrderStatus(int id) {
+        [HttpPut]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> UpdateOrder([FromRoute] Guid id) {
             return Ok(new { message = "Updated Order Status" });
+        }
+
+        [HttpDelete]
+        [Route("{id:Guid}")]
+        public async Task<IActionResult> DeleteOrder([FromRoute] Guid id)
+        {
+            var deletedOrder = await orderRepository.DeleteAsync(id);
+            if (deletedOrder == null) return NotFound();
+            return Ok(mapper.Map<OrderDto>(deletedOrder));
         }
     }
 }

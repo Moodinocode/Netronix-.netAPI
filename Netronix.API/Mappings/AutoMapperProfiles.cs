@@ -10,6 +10,13 @@ namespace Netronix.API.Mappings
         {
             CreateMap<Product,ProductDto>().ReverseMap();
             CreateMap<Tag, TagDtocs>().ReverseMap();
+            CreateMap<Product, AddProductRequestDto>().ReverseMap();
+            CreateMap<Product, UpdateProductRequestDto>().ReverseMap();
+            CreateMap<Tag,CreateTagDto>().ReverseMap();
+            CreateMap<Tag,UpdateTagDto>().ReverseMap();
+            CreateMap<Order, OrderDto>().ReverseMap();
+            
+
         }
     }
 }

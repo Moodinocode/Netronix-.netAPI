@@ -48,15 +48,13 @@ namespace Netronix.API.Repositories
             return product;
         }
 
-        public Task<List<Product>> GetProductsByTagAsync(Guid id)
+        public async Task<List<Product>> GetProductsByTagAsync(Guid id)
         {
-            throw new NotImplementedException();
+           return await dbContext.Products
+                .Where(p => p.ProductTags.Any(pt => pt.TagId == id))
+                .ToListAsync();
         }
 
-        public Task<List<Tag>> GetTagsAsync()
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<Product?> UpdateProductAsync(Guid id,Product product)
         {

@@ -8,6 +8,6 @@
 
         public ProductVariant? Variant { get; set; }
 
-        public string? Option { get; set; } // name of the option if variantID -> color then option -> black or blue
+        public string? Value { get; set; } // name of the option if variantID -> color then option -> black or blue
     }
 }
