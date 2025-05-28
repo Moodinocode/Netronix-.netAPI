@@ -9,13 +9,16 @@ namespace Netronix.API.Mappings
         public AutoMapperProfiles()
         {
             CreateMap<Product,ProductDto>().ReverseMap();
-            CreateMap<Tag, TagDtocs>().ReverseMap();
+            CreateMap<Tag, TagDto>().ReverseMap();
             CreateMap<Product, AddProductRequestDto>().ReverseMap();
             CreateMap<Product, UpdateProductRequestDto>().ReverseMap();
             CreateMap<Tag,CreateTagDto>().ReverseMap();
             CreateMap<Tag,UpdateTagDto>().ReverseMap();
             CreateMap<Order, OrderDto>().ReverseMap();
-            
+            CreateMap<Order,CreateOrderDto>().ForMember(dest => dest.items, opt =>opt.Ignore()).ReverseMap();
+            CreateMap<Order, UpdateOrderRequestDto>().ForMember(dest => dest.items, opt => opt.Ignore()).ReverseMap();
+            CreateMap<OrderItemDto, OrderItem>().ReverseMap();
+            CreateMap<Adress, AdressDto>().ReverseMap();
 
         }
     }

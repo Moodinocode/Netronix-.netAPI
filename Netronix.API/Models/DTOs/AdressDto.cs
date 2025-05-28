@@ -1,8 +1,7 @@
-﻿namespace Netronix.API.Models.Domains
+﻿namespace Netronix.API.Models.DTOs
 {
-    public class Adress
+    public class AdressDto
     {
-        public Guid Id { get; set; }
         public string Street { get; set; }
         public string City { get; set; }
         public string State { get; set; }

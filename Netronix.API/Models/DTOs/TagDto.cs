@@ -2,7 +2,7 @@
 
 namespace Netronix.API.Models.DTOs
 {
-    public class TagDtocs
+    public class TagDto
     {
         public Guid Id { get; set; }
         public string? Name { get; set; } // name of the tag

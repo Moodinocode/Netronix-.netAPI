@@ -1,22 +1,18 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Net;
+﻿using Netronix.API.Models.Domains;
+using System.ComponentModel.DataAnnotations;
 
-namespace Netronix.API.Models.Domains
+namespace Netronix.API.Models.DTOs
 {
-    public class Order
+    public class UpdateOrderRequestDto
     {
-        public Guid Id { get; set; }
-        [Required]
-        public int OrderNumber { get; set; }
 
-        public List<OrderItem> items { get; set; } = new();
+
+        public List<OrderItemDto> items { get; set; }
         public decimal Subtotal { get; set; }
         public decimal DeliveryFee { get; set; }
-        public decimal TotalAmount { get; set; } // calculated as Subtotal + DeliveryFee
 
 
         public Adress? ShippingAddress { get; set; }
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
         public string? PaymentMethod { get; set; }
         public bool IsPaid { get; set; } = false;
@@ -34,9 +30,6 @@ namespace Netronix.API.Models.Domains
             Cancelled
         }
 
-        public OrderStatus Status { get; set; } = OrderStatus.OrderPlaced;
-
-
-
+        public OrderStatus Status { get; set; }
     }
 }

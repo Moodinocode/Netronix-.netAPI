@@ -24,13 +24,13 @@ namespace Netronix.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetTags() {
             var tags = await tagRepository.GetTagsAsync();
-            return Ok(mapper.Map<List<TagDtocs>>(tags));
+            return Ok(mapper.Map<List<TagDto>>(tags));
         }
         [HttpPost]
         public async Task<IActionResult> CreateTag([FromBody] CreateTagDto createTagDto)
         {
             var tag = await tagRepository.AddTagAsync(mapper.Map<Tag>(createTagDto));
-            return Ok(mapper.Map<TagDtocs>(tag));
+            return Ok(mapper.Map<TagDto>(tag));
         }
         [HttpPut]
         [Route("{id:Guid}")]
@@ -41,7 +41,7 @@ namespace Netronix.API.Controllers
             {
                 return NotFound();
             }
-            return Ok(mapper.Map<TagDtocs>(tag));
+            return Ok(mapper.Map<TagDto>(tag));
         }
         [HttpDelete]
         [Route("{id:Guid}")]
@@ -52,7 +52,7 @@ namespace Netronix.API.Controllers
             {
                 return NotFound();
             }
-            return Ok(mapper.Map<TagDtocs>(tag));
+            return Ok(mapper.Map<TagDto>(tag));
         }
 
     }

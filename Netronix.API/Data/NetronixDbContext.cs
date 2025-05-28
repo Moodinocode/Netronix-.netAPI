@@ -17,7 +17,7 @@ namespace Netronix.API.Data
         public DbSet<Adress> adresses { get; set; }
         public DbSet<InventoryItem> inventoryItems { get; set; }
         public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItemcs> orderItems { get; set; }
+        public DbSet<OrderItem> orderItems { get; set; }
         public DbSet<ProductTags> productTags { get; set; }
 
 

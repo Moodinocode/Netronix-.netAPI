@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Netronix.API.Data;
 using Netronix.API.Models.Domains;
+using Netronix.API.Models.DTOs;
 
 namespace Netronix.API.Repositories
 {
@@ -16,7 +17,10 @@ namespace Netronix.API.Repositories
         {
             order.Id = Guid.NewGuid(); 
             order.OrderDate = DateTime.UtcNow;
-            order.IsGuestOrder = true;
+            order.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity); 
+            order.TotalAmount = order.Subtotal + order.DeliveryFee; 
+            order.OrderNumber = await dbContext.Orders.CountAsync() + 1; 
+            order.Status = Order.OrderStatus.OrderPlaced;
             await dbContext.Orders.AddAsync(order);
             await dbContext.SaveChangesAsync();
             return order;
@@ -51,17 +55,16 @@ namespace Netronix.API.Repositories
         {
             var existing = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == Id);
             if (existing == null) return null;
-            existing.OrderDate = order.OrderDate;
-            existing.IsGuestOrder = order.IsGuestOrder;
-            existing.Status = order.Status;
-            existing.PaymentMethod = order.PaymentMethod;
-            existing.ShippingAddress = order.ShippingAddress;
-            existing.Subtotal = order.Subtotal;
-            existing.DeliveryFee = order.DeliveryFee;
-            existing.TotalAmount = order.TotalAmount;
-            existing.IsPaid = order.IsPaid;
-            existing.OrderNumber = order.OrderNumber;
             existing.items = order.items;
+            existing.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity);
+            existing.DeliveryFee = order.DeliveryFee;
+            existing.TotalAmount = existing.Subtotal + existing.DeliveryFee; 
+            existing.ShippingAddress = order.ShippingAddress;
+            existing.CustomerId = order.CustomerId;
+            existing.IsGuestOrder = order.IsGuestOrder;
+            existing.PaymentMethod = order.PaymentMethod;
+            existing.IsPaid = order.IsPaid;
+            existing.Status = order.Status;
             dbContext.Orders.Update(existing);
             await dbContext.SaveChangesAsync();
             return existing;
@@ -69,3 +72,4 @@ namespace Netronix.API.Repositories
         }
     }
 }
+

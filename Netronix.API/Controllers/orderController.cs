@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Netronix.API.Models.Domains;
 using Netronix.API.Models.DTOs;
 using Netronix.API.Repositories;
 
@@ -12,34 +14,57 @@ namespace Netronix.API.Controllers
     {
         private readonly IMapper mapper;
         private readonly IOrderRepository orderRepository;
+        private readonly IProductRepository productRepository;
 
-        public orderController(IMapper mapper, IOrderRepository orderRepository)
+        public orderController(IMapper mapper, IOrderRepository orderRepository,IProductRepository productRepository)
         {
             this.mapper = mapper;
             this.orderRepository = orderRepository;
+            this.productRepository = productRepository;
         }
+        
         [HttpPost]
-        [Route("user/{Userid:Guid}")]
-        public async Task<IActionResult> CreateOrder([FromRoute] Guid Userid)
+        public async Task<IActionResult> CreateOrder([FromQuery] Guid? Userid, CreateOrderDto createOrderDto)
         {
-            // This is a placeholder for the actual implementation
-            return Ok(new { message = "Order created" });
+            var items = new List<OrderItem>();
+            foreach (var item in createOrderDto.items)
+            {
+                var newItem =new OrderItem
+                {
+                    product = await productRepository.GetByIdAsync(item.productID),
+                    Quantity = item.Quantity
+                };
+                if (newItem.product == null) return BadRequest();
+                items[createOrderDto.items.IndexOf(item)] = newItem;
+            }
+
+            var order = mapper.Map<Order>(createOrderDto);
+            order.items = items;
+            if (Userid.HasValue)
+            {
+                order.CustomerId = Userid.Value;
+                order.IsGuestOrder = false;
+            }
+            else
+            {
+                order.IsGuestOrder = true;
+            }
+            return Ok(await orderRepository.CreateAsync(order));
         }
-       [HttpPost]
-        public async Task<IActionResult> CreateOrderGuest()//might keep it same and make it based on the dto
-        {
-            // This is a placeholder for the actual implementation
-            return Ok(new { message = "Order created" });
-        }
+        
         [HttpGet]
         public async Task<IActionResult> GetAllOrders() {
             return Ok(await orderRepository.GetAllAsync());
         }
+        
         [HttpGet]
         [Route("{id:Guid}")]
         public async Task<IActionResult> GetOrderById([FromRoute] Guid id) {
-            return Ok(await orderRepository.GetByIdAsync(id));
+            var result = await orderRepository.GetByIdAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
+        
         [HttpGet]
         [Route("user/{Userid:Guid}")]
         public async Task<IActionResult> GetOrdersByUserId([FromRoute] Guid Userid) {
@@ -48,8 +73,27 @@ namespace Netronix.API.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
-        public async Task<IActionResult> UpdateOrder([FromRoute] Guid id) {
-            return Ok(new { message = "Updated Order Status" });
+        public async Task<IActionResult> UpdateOrder([FromRoute] Guid id,UpdateOrderRequestDto updateOrderRequestDto) {
+            var items = new List<OrderItem>();
+            foreach (var item in updateOrderRequestDto.items)
+            {
+                var newItem = new OrderItem
+                {
+                    product = await productRepository.GetByIdAsync(item.productID),
+                    Quantity = item.Quantity
+                };
+                if (newItem.product == null) return BadRequest();
+                items[updateOrderRequestDto.items.IndexOf(item)] = newItem;
+            }
+
+            var order = mapper.Map<Order>(updateOrderRequestDto);
+            order.items = items;
+
+            var result = await orderRepository.UpdateAsync(id, order);
+            if (result == null) return NotFound();
+
+
+            return Ok(result);
         }
 
         [HttpDelete]

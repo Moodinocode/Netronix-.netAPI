@@ -40,7 +40,7 @@ namespace Netronix.API.Controllers
 
 
         [HttpGet]
-        [Route("tag/{id:Guid}")]
+        [Route("tag/{Tagid:Guid}")]
         public async Task<IActionResult> GetProductsbyTag([FromRoute] Guid id) {
            var productsDomainModel = await productRepository.GetProductsByTagAsync(id);
             return Ok(mapper.Map<List<ProductDto>>(productsDomainModel));

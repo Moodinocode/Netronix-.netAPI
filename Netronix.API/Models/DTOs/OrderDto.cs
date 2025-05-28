@@ -9,7 +9,7 @@ namespace Netronix.API.Models.DTOs
             [Required]
             public int OrderNumber { get; set; }
 
-            public List<OrderItemcs> items { get; set; } = new();
+            public List<OrderItem> items { get; set; } = new();
             public decimal Subtotal { get; set; }
             public decimal DeliveryFee { get; set; }
             public decimal TotalAmount { get; set; } // calculated as Subtotal + DeliveryFee
