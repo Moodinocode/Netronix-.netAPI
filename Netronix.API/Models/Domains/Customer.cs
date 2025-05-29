@@ -1,4 +1,6 @@
-﻿namespace Netronix.API.Models.Domains
+﻿using System.Text.Json.Serialization;
+
+namespace Netronix.API.Models.Domains
 {
     public class Customer
     {
@@ -13,6 +15,7 @@
         public DateTime? UpdatedAt { get; set; } // Nullable for optional updates
 
         // Navigation properties
+        [JsonIgnore]
         public List<Order>? Orders { get; set; }
     }
 }

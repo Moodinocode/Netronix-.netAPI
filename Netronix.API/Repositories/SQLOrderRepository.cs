@@ -38,12 +38,18 @@ namespace Netronix.API.Repositories
 
         public async Task<List<Order>> GetAllAsync()
         {
-            return await dbContext.Orders.OrderByDescending(x => x.OrderDate).ToListAsync();
+            return await dbContext.Orders
+                .Include(o => o.items)
+                    .ThenInclude(o => o.product)
+                .OrderByDescending(x => x.OrderDate).ToListAsync();
         }
 
         public async Task<Order?> GetByIdAsync(Guid id)
         {
-            return await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == id);
+            return await dbContext.Orders
+                .Include(o => o.items)
+                    .ThenInclude(o => o.product)
+                .FirstOrDefaultAsync(o => o.Id == id);
         }
 
         public Task<List<Order>> GetOrdersByUserIdAsync(Guid userId)
@@ -53,7 +59,7 @@ namespace Netronix.API.Repositories
 
         public async Task<Order?> UpdateAsync(Guid Id, Order order)
         {
-            var existing = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == Id);
+            var existing = await dbContext.Orders.Include(o => o.items).ThenInclude(o => o.product).FirstOrDefaultAsync(o => o.Id == Id);
             if (existing == null) return null;
             existing.items = order.items;
             //existing.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity);

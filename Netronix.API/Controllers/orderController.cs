@@ -26,20 +26,20 @@ namespace Netronix.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromQuery] Guid? Userid, CreateOrderDto createOrderDto)
         {
-            var items = new List<OrderItem>();
-            foreach (var item in createOrderDto.items)
-            {
-                var newItem =new OrderItem
-                {
-                    product = await productRepository.GetByIdAsync(item.productID),
-                    Quantity = item.Quantity
-                };
-                if (newItem.product == null) return BadRequest();
-                items[createOrderDto.items.IndexOf(item)] = newItem;
-            }
+            //var items = new List<OrderItem>();
+            //foreach (var item in createOrderDto.items)
+           // {
+            //    var newItem =new OrderItem
+            //    {
+            //        product = await productRepository.GetByIdAsync(item.productID),
+            //        Quantity = item.Quantity
+           //     };
+          //      if (newItem.product == null) return BadRequest();
+           //     items[createOrderDto.items.IndexOf(item)] = newItem;
+           // }
 
             var order = mapper.Map<Order>(createOrderDto);
-            order.items = items;
+            //order.items = items;
             if (Userid.HasValue)
             {
                 order.CustomerId = Userid.Value;
