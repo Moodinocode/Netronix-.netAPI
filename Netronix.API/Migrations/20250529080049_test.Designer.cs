@@ -12,8 +12,8 @@ using Netronix.API.Data;
 namespace Netronix.API.Migrations
 {
     [DbContext(typeof(NetronixDbContext))]
-    [Migration("20250523083930_initial")]
-    partial class initial
+    [Migration("20250529080049_test")]
+    partial class test
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,15 +32,19 @@ namespace Netronix.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("City")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Country")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Street")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ZipCode")
@@ -48,7 +52,39 @@ namespace Netronix.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("adresses");
+                    b.ToTable("Addresses");
+                });
+
+            modelBuilder.Entity("Netronix.API.Models.Domains.Customer", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.InventoryItem", b =>
@@ -67,7 +103,7 @@ namespace Netronix.API.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("inventoryItems");
+                    b.ToTable("InventoryItems");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.Order", b =>
@@ -76,10 +112,14 @@ namespace Netronix.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AdressID")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("DeliveryFee")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsGuestOrder")
@@ -97,48 +137,52 @@ namespace Netronix.API.Migrations
                     b.Property<string>("PaymentMethod")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("ShippingAddressId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("Subtotal")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("ShippingAddressId");
+                    b.HasIndex("AdressID");
 
-                    b.ToTable("orders");
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Netronix.API.Models.Domains.OrderItemcs", b =>
+            modelBuilder.Entity("Netronix.API.Models.Domains.OrderItem", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("OrderId")
+                    b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProductName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ProductSku")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<decimal>("UnitPrice")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("orderItems");
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.Product", b =>
@@ -163,6 +207,7 @@ namespace Netronix.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("brand")
@@ -175,23 +220,17 @@ namespace Netronix.API.Migrations
 
             modelBuilder.Entity("Netronix.API.Models.Domains.ProductTags", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TagId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
+                    b.HasKey("ProductId", "TagId");
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("productTags");
+                    b.ToTable("ProductTags");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.ProductVariant", b =>
@@ -224,7 +263,7 @@ namespace Netronix.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("tags");
+                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.VariantOption", b =>
@@ -236,7 +275,7 @@ namespace Netronix.API.Migrations
                     b.Property<Guid?>("InventoryItemId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Option")
+                    b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("VariantId")
@@ -266,16 +305,37 @@ namespace Netronix.API.Migrations
                 {
                     b.HasOne("Netronix.API.Models.Domains.Adress", "ShippingAddress")
                         .WithMany()
-                        .HasForeignKey("ShippingAddressId");
+                        .HasForeignKey("AdressID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Netronix.API.Models.Domains.Customer", "Customer")
+                        .WithMany("Orders")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Customer");
 
                     b.Navigation("ShippingAddress");
                 });
 
-            modelBuilder.Entity("Netronix.API.Models.Domains.OrderItemcs", b =>
+            modelBuilder.Entity("Netronix.API.Models.Domains.OrderItem", b =>
                 {
-                    b.HasOne("Netronix.API.Models.Domains.Order", null)
+                    b.HasOne("Netronix.API.Models.Domains.Order", "Order")
                         .WithMany("items")
-                        .HasForeignKey("OrderId");
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Netronix.API.Models.Domains.Product", "product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Order");
+
+                    b.Navigation("product");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.ProductTags", b =>
@@ -321,6 +381,11 @@ namespace Netronix.API.Migrations
                         .IsRequired();
 
                     b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("Netronix.API.Models.Domains.Customer", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.InventoryItem", b =>

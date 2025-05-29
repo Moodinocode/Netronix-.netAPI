@@ -17,10 +17,10 @@ namespace Netronix.API.Repositories
         {
             order.Id = Guid.NewGuid(); 
             order.OrderDate = DateTime.UtcNow;
-            order.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity); 
-            order.TotalAmount = order.Subtotal + order.DeliveryFee; 
+           // order.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity); 
+            //order.TotalAmount = order.Subtotal + order.DeliveryFee; 
             order.OrderNumber = await dbContext.Orders.CountAsync() + 1; 
-            order.Status = Order.OrderStatus.OrderPlaced;
+            //order.Status = Order.OrderStatus.OrderPlaced;
             await dbContext.Orders.AddAsync(order);
             await dbContext.SaveChangesAsync();
             return order;
@@ -56,9 +56,9 @@ namespace Netronix.API.Repositories
             var existing = await dbContext.Orders.FirstOrDefaultAsync(o => o.Id == Id);
             if (existing == null) return null;
             existing.items = order.items;
-            existing.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity);
+            //existing.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity);
             existing.DeliveryFee = order.DeliveryFee;
-            existing.TotalAmount = existing.Subtotal + existing.DeliveryFee; 
+           // existing.TotalAmount = existing.Subtotal + existing.DeliveryFee; 
             existing.ShippingAddress = order.ShippingAddress;
             existing.CustomerId = order.CustomerId;
             existing.IsGuestOrder = order.IsGuestOrder;

@@ -6,25 +6,42 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Netronix.API.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class test : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "adresses",
+                name: "Addresses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    State = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    State = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_adresses", x => x.Id);
+                    table.PrimaryKey("PK_Addresses", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -35,7 +52,7 @@ namespace Netronix.API.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     brand = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsBestSeller = table.Column<bool>(type: "bit", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -46,7 +63,7 @@ namespace Netronix.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "tags",
+                name: "Tags",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -54,19 +71,17 @@ namespace Netronix.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_tags", x => x.Id);
+                    table.PrimaryKey("PK_Tags", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "orders",
+                name: "Orders",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderNumber = table.Column<int>(type: "int", nullable: false),
-                    Subtotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DeliveryFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    ShippingAddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    DeliveryFee = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    AdressID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PaymentMethod = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsPaid = table.Column<bool>(type: "bit", nullable: false),
@@ -76,16 +91,23 @@ namespace Netronix.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_orders", x => x.Id);
+                    table.PrimaryKey("PK_Orders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_orders_adresses_ShippingAddressId",
-                        column: x => x.ShippingAddressId,
-                        principalTable: "adresses",
-                        principalColumn: "Id");
+                        name: "FK_Orders_Addresses_AdressID",
+                        column: x => x.AdressID,
+                        principalTable: "Addresses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Orders_Customers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "inventoryItems",
+                name: "InventoryItems",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -94,9 +116,9 @@ namespace Netronix.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_inventoryItems", x => x.Id);
+                    table.PrimaryKey("PK_InventoryItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_inventoryItems_Products_ProductId",
+                        name: "FK_InventoryItems_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
@@ -123,48 +145,57 @@ namespace Netronix.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "productTags",
+                name: "ProductTags",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_productTags", x => x.Id);
+                    table.PrimaryKey("PK_ProductTags", x => new { x.ProductId, x.TagId });
                     table.ForeignKey(
-                        name: "FK_productTags_Products_ProductId",
+                        name: "FK_ProductTags_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_productTags_tags_TagId",
+                        name: "FK_ProductTags_Tags_TagId",
                         column: x => x.TagId,
-                        principalTable: "tags",
+                        principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "orderItems",
+                name: "OrderItems",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    UnitPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    ProductSku = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_orderItems", x => x.Id);
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_orderItems_orders_OrderId",
+                        name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "orders",
-                        principalColumn: "Id");
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -173,48 +204,53 @@ namespace Netronix.API.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Option = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     InventoryItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VariantOptions", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_VariantOptions_InventoryItems_InventoryItemId",
+                        column: x => x.InventoryItemId,
+                        principalTable: "InventoryItems",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_VariantOptions_ProductVariants_VariantId",
                         column: x => x.VariantId,
                         principalTable: "ProductVariants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_VariantOptions_inventoryItems_InventoryItemId",
-                        column: x => x.InventoryItemId,
-                        principalTable: "inventoryItems",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_inventoryItems_ProductId",
-                table: "inventoryItems",
+                name: "IX_InventoryItems_ProductId",
+                table: "InventoryItems",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_orderItems_OrderId",
-                table: "orderItems",
+                name: "IX_OrderItems_OrderId",
+                table: "OrderItems",
                 column: "OrderId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_orders_ShippingAddressId",
-                table: "orders",
-                column: "ShippingAddressId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_productTags_ProductId",
-                table: "productTags",
+                name: "IX_OrderItems_ProductId",
+                table: "OrderItems",
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_productTags_TagId",
-                table: "productTags",
+                name: "IX_Orders_AdressID",
+                table: "Orders",
+                column: "AdressID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_CustomerId",
+                table: "Orders",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ProductTags_TagId",
+                table: "ProductTags",
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
@@ -237,28 +273,31 @@ namespace Netronix.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "orderItems");
+                name: "OrderItems");
 
             migrationBuilder.DropTable(
-                name: "productTags");
+                name: "ProductTags");
 
             migrationBuilder.DropTable(
                 name: "VariantOptions");
 
             migrationBuilder.DropTable(
-                name: "orders");
+                name: "Orders");
 
             migrationBuilder.DropTable(
-                name: "tags");
+                name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "InventoryItems");
 
             migrationBuilder.DropTable(
                 name: "ProductVariants");
 
             migrationBuilder.DropTable(
-                name: "inventoryItems");
+                name: "Addresses");
 
             migrationBuilder.DropTable(
-                name: "adresses");
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "Products");
