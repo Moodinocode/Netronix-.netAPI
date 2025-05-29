@@ -14,7 +14,7 @@ namespace Netronix.API.Data
         public DbSet<VariantOption> VariantOptions { get; set; }
         public DbSet<Tag> Tags { get; set; }
         public DbSet<Adress> Addresses { get; set; } // Keep your original class name
-        public DbSet<InventoryItem> InventoryItems { get; set; } // Pascal case
+        //public DbSet<InventoryItem> InventoryItems { get; set; } // Pascal case
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; } // Pascal case
         public DbSet<ProductTags> ProductTags { get; set; } // Pascal case
@@ -58,12 +58,18 @@ namespace Netronix.API.Data
                 .HasForeignKey(pv => pv.ProductId) 
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            modelBuilder.Entity<Product>()
-                .HasMany<InventoryItem>()
-                .WithOne() 
-                .HasForeignKey(ii => ii.ProductId) 
+            modelBuilder.Entity<ProductVariant>()
+                .HasMany(p => p.Options)
+                .WithOne(pv => pv.Variant)
+                .HasForeignKey(pv => pv.VariantId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+
+            //modelBuilder.Entity<Product>()
+            //    .HasMany<InventoryItem>()
+            //   .WithOne() 
+            //    .HasForeignKey(ii => ii.ProductId) 
+            //    .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProductTags>()
                     .HasKey(pt => new { pt.ProductId, pt.TagId });
@@ -98,10 +104,10 @@ namespace Netronix.API.Data
                 .HasForeignKey(oi => oi.OrderId);
 
 
-            modelBuilder.Entity<InventoryItem>()
-                .HasOne(ii => ii.Product)
-                .WithMany(p => p.Inventory)
-                .HasForeignKey(ii => ii.ProductId);
+         //   modelBuilder.Entity<InventoryItem>()
+         //       .HasOne(ii => ii.Product)
+         //       .WithMany(p => p.Inventory)
+         //       .HasForeignKey(ii => ii.ProductId);
 
             modelBuilder.Entity<Order>()
                 .Ignore(o => o.Subtotal)

@@ -19,7 +19,12 @@ namespace Netronix.API.Mappings
             CreateMap<Order, UpdateOrderRequestDto>().ForMember(dest => dest.items, opt => opt.Ignore()).ReverseMap();
             CreateMap<OrderItemDto, OrderItem>().ReverseMap();
             CreateMap<Adress, AdressDto>().ReverseMap();
-
+            CreateMap<VariantOption,VariantOptionsDto>().ReverseMap();
+            CreateMap<ProductVariant,VariantsDto>().ReverseMap();
+            CreateMap<ProductTags, ProductTagDto>().ReverseMap();
+        
+        
+        
         }
     }
 }

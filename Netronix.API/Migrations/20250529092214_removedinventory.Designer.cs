@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Netronix.API.Data;
 
@@ -11,9 +12,11 @@ using Netronix.API.Data;
 namespace Netronix.API.Migrations
 {
     [DbContext(typeof(NetronixDbContext))]
-    partial class NetronixDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250529092214_removedinventory")]
+    partial class removedinventory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -33,17 +33,30 @@ namespace Netronix.API.Repositories
 
         public async Task<List<Product>> GetAllAsync()
         {
-            return await dbContext.Products.ToListAsync();
+            return await dbContext.Products
+                .Include(p => p.Variants)
+                    .ThenInclude(v=>v.Options)
+                .Include(p=>p.ProductTags)
+                .ToListAsync();
         }
 
         public async Task<List<Product>> GetBestSellersAsync()
         {
-            return await dbContext.Products.Where(x => x.IsBestSeller == true).ToListAsync();
+            return await dbContext.Products
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Options)
+                .Include(p => p.ProductTags)
+                .Where(x => x.IsBestSeller == true)
+                .ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(Guid id)
         {
-            var product = await  dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+            var product = await  dbContext.Products
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Options)
+                .Include(p => p.ProductTags)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (product == null) return null;
             return product;
         }
@@ -51,6 +64,9 @@ namespace Netronix.API.Repositories
         public async Task<List<Product>> GetProductsByTagAsync(Guid id)
         {
            return await dbContext.Products
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Options)
+                .Include(p => p.ProductTags)
                 .Where(p => p.ProductTags.Any(pt => pt.TagId == id))
                 .ToListAsync();
         }
@@ -58,8 +74,15 @@ namespace Netronix.API.Repositories
 
         public async Task<Product?> UpdateProductAsync(Guid id,Product product)
         {
-            var existing = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
+            var existing = await dbContext.Products
+                .Include(p => p.Variants)
+                    .ThenInclude(v => v.Options)
+                .Include(p => p.ProductTags)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+
             if (existing == null) return null;
+
             existing.Name = product.Name;
             existing.brand = product.brand;
             existing.Description = product.Description;
@@ -68,7 +91,7 @@ namespace Netronix.API.Repositories
             existing.IsBestSeller = product.IsBestSeller;
             existing.Variants = product.Variants;
             existing.ProductTags = product.ProductTags;
-            existing.Inventory = product.Inventory;
+            //existing.Inventory = product.Inventory;
             await dbContext.SaveChangesAsync();
             return existing;
 

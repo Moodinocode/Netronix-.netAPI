@@ -16,6 +16,6 @@ namespace Netronix.API.Models.DTOs
         public List<ProductTags> ProductTags { get; set; } = new();
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
-        public List<InventoryItem> Inventory { get; set; } = new();
+       // public List<InventoryItem> Inventory { get; set; } = new();
     }
 }
