@@ -75,6 +75,8 @@ namespace Netronix.API.Repositories
             return await dbContext.Orders
                 .Include(o => o.items)
                     .ThenInclude(o => o.product)
+                .Include(o => o.items)
+                    .ThenInclude(i => i.SelectedOptions)
                 .OrderByDescending(x => x.OrderDate).ToListAsync();
         }
 
