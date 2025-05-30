@@ -5,14 +5,13 @@ namespace Netronix.API.Models.DTOs
 {
     public class CreateOrderDto
     {
-        public List<OrderItemDto> items { get; set; }
+        public List<CreateOrderItemDto> items { get; set; }
         public decimal DeliveryFee { get; set; }
 
 
         public AdressDto ShippingAddress { get; set; }
 
         public string PaymentMethod { get; set; }
-        public bool IsPaid { get; set; } = false;
 
 
 

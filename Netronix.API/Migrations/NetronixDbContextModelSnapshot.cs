@@ -129,11 +129,9 @@ namespace Netronix.API.Migrations
 
             modelBuilder.Entity("Netronix.API.Models.Domains.OrderItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
@@ -142,9 +140,6 @@ namespace Netronix.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ProductName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ProductSku")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Quantity")
@@ -169,6 +164,10 @@ namespace Netronix.API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("BasePrice")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
@@ -183,10 +182,6 @@ namespace Netronix.API.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("brand")
                         .HasColumnType("nvarchar(max)");
@@ -230,6 +225,42 @@ namespace Netronix.API.Migrations
                     b.ToTable("ProductVariants");
                 });
 
+            modelBuilder.Entity("Netronix.API.Models.Domains.SelectedVariantOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OptionValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrderItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PriceAdjustment")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VariantName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("VariantOptionID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderItemId");
+
+                    b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("VariantOptionID");
+
+                    b.ToTable("SelectedVariantOptions");
+                });
+
             modelBuilder.Entity("Netronix.API.Models.Domains.Tag", b =>
                 {
                     b.Property<Guid>("Id")
@@ -249,6 +280,10 @@ namespace Netronix.API.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("PriceAdjustment")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Value")
                         .HasColumnType("nvarchar(max)");
@@ -333,6 +368,33 @@ namespace Netronix.API.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Netronix.API.Models.Domains.SelectedVariantOption", b =>
+                {
+                    b.HasOne("Netronix.API.Models.Domains.OrderItem", "OrderItem")
+                        .WithMany("SelectedOptions")
+                        .HasForeignKey("OrderItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Netronix.API.Models.Domains.ProductVariant", "ProductVariant")
+                        .WithMany()
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Netronix.API.Models.Domains.VariantOption", "VariantOption")
+                        .WithMany()
+                        .HasForeignKey("VariantOptionID")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("OrderItem");
+
+                    b.Navigation("ProductVariant");
+
+                    b.Navigation("VariantOption");
+                });
+
             modelBuilder.Entity("Netronix.API.Models.Domains.VariantOption", b =>
                 {
                     b.HasOne("Netronix.API.Models.Domains.ProductVariant", "Variant")
@@ -352,6 +414,11 @@ namespace Netronix.API.Migrations
             modelBuilder.Entity("Netronix.API.Models.Domains.Order", b =>
                 {
                     b.Navigation("items");
+                });
+
+            modelBuilder.Entity("Netronix.API.Models.Domains.OrderItem", b =>
+                {
+                    b.Navigation("SelectedOptions");
                 });
 
             modelBuilder.Entity("Netronix.API.Models.Domains.Product", b =>

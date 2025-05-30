@@ -2,6 +2,7 @@
 using Netronix.API.Data;
 using Netronix.API.Models.Domains;
 using Netronix.API.Models.DTOs;
+using System.Text.Json;
 
 namespace Netronix.API.Repositories
 {
@@ -17,10 +18,43 @@ namespace Netronix.API.Repositories
         {
             order.Id = Guid.NewGuid(); 
             order.OrderDate = DateTime.UtcNow;
-           // order.Subtotal = order.items.Sum(item => item.product.Price * item.Quantity); 
-            //order.TotalAmount = order.Subtotal + order.DeliveryFee; 
-            order.OrderNumber = await dbContext.Orders.CountAsync() + 1; 
-            //order.Status = Order.OrderStatus.OrderPlaced;
+            order.OrderNumber = await dbContext.Orders.CountAsync() + 1;
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            var json = JsonSerializer.Serialize(order, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles // in case of circular references
+            });
+
+            Console.WriteLine("DEBUG: Order object before saving:\n" + json);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "order_debug.json");
+            await File.WriteAllTextAsync(filePath, json);
+
             await dbContext.Orders.AddAsync(order);
             await dbContext.SaveChangesAsync();
             return order;

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Netronix.API.Migrations
 {
     /// <inheritdoc />
-    public partial class test : Migration
+    public partial class hopefullyFinal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,7 +52,7 @@ namespace Netronix.API.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     brand = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
+                    BasePrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     ImageUrls = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsBestSeller = table.Column<bool>(type: "bit", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -107,25 +107,6 @@ namespace Netronix.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InventoryItems",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InventoryItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_InventoryItems_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductVariants",
                 columns: table => new
                 {
@@ -172,13 +153,11 @@ namespace Netronix.API.Migrations
                 name: "OrderItems",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UnitPrice = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    ProductSku = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -205,16 +184,12 @@ namespace Netronix.API.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    InventoryItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    quantity = table.Column<int>(type: "int", nullable: false),
+                    PriceAdjustment = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_VariantOptions", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VariantOptions_InventoryItems_InventoryItemId",
-                        column: x => x.InventoryItemId,
-                        principalTable: "InventoryItems",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_VariantOptions_ProductVariants_VariantId",
                         column: x => x.VariantId,
@@ -223,10 +198,40 @@ namespace Netronix.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_InventoryItems_ProductId",
-                table: "InventoryItems",
-                column: "ProductId");
+            migrationBuilder.CreateTable(
+                name: "SelectedVariantOptions",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderItemId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductVariantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VariantOptionID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    VariantName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OptionValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PriceAdjustment = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SelectedVariantOptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SelectedVariantOptions_OrderItems_OrderItemId",
+                        column: x => x.OrderItemId,
+                        principalTable: "OrderItems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SelectedVariantOptions_ProductVariants_ProductVariantId",
+                        column: x => x.ProductVariantId,
+                        principalTable: "ProductVariants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SelectedVariantOptions_VariantOptions_VariantOptionID",
+                        column: x => x.VariantOptionID,
+                        principalTable: "VariantOptions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
@@ -259,9 +264,19 @@ namespace Netronix.API.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VariantOptions_InventoryItemId",
-                table: "VariantOptions",
-                column: "InventoryItemId");
+                name: "IX_SelectedVariantOptions_OrderItemId",
+                table: "SelectedVariantOptions",
+                column: "OrderItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SelectedVariantOptions_ProductVariantId",
+                table: "SelectedVariantOptions",
+                column: "ProductVariantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SelectedVariantOptions_VariantOptionID",
+                table: "SelectedVariantOptions",
+                column: "VariantOptionID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VariantOptions_VariantId",
@@ -273,22 +288,22 @@ namespace Netronix.API.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "OrderItems");
+                name: "ProductTags");
 
             migrationBuilder.DropTable(
-                name: "ProductTags");
+                name: "SelectedVariantOptions");
+
+            migrationBuilder.DropTable(
+                name: "Tags");
+
+            migrationBuilder.DropTable(
+                name: "OrderItems");
 
             migrationBuilder.DropTable(
                 name: "VariantOptions");
 
             migrationBuilder.DropTable(
                 name: "Orders");
-
-            migrationBuilder.DropTable(
-                name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "InventoryItems");
 
             migrationBuilder.DropTable(
                 name: "ProductVariants");

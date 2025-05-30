@@ -7,5 +7,6 @@ namespace Netronix.API.Models.DTOs
 
         public string? Value { get; set; } 
         public int quantity { get; set; }
+        public decimal PriceAdjustment { get; set; }
     }
 }

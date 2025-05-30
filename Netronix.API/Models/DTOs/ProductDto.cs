@@ -8,7 +8,7 @@ namespace Netronix.API.Models.DTOs
         public string? Name { get; set; }
         public string? brand { get; set; } // brand name
         public string? Description { get; set; }
-        public decimal Price { get; set; }
+        public decimal BasePrice { get; set; }
         public List<string>? ImageUrls { get; set; } //images to be displayed for product
 
         public bool IsBestSeller { get; set; }

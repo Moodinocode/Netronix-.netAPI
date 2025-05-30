@@ -1,0 +1,45 @@
+{
+  "Id": "7b14af8f-2b32-4f90-88a2-6a974d1eabc6",
+  "OrderNumber": 1,
+  "items": [
+    {
+      "Id": "9ea18c0d-7978-4714-a445-51806733aa0e",
+      "OrderId": "00000000-0000-0000-0000-000000000000",
+      "ProductId": "28a8cdd2-90da-4277-ae87-16158f0c4504",
+      "ProductName": "laptop1",
+      "UnitPrice": 304.00,
+      "Quantity": 2,
+      "SelectedOptions": [
+        {
+          "Id": "c3958825-819c-401b-b6d4-17ea33d46ed2",
+          "OrderItemId": "00000000-0000-0000-0000-000000000000",
+          "ProductVariantId": "ce8e88ae-68ef-4aaa-2b7a-08dd9f58091b",
+          "VariantOptionID": "80e5f78a-a1f6-4f05-2abd-08dd9f580920",
+          "VariantName": "Ram",
+          "OptionValue": "16GB",
+          "PriceAdjustment": 25.00
+        }
+      ],
+      "TotalPrice": 608.00
+    }
+  ],
+  "Subtotal": 608.00,
+  "DeliveryFee": 7,
+  "TotalAmount": 615.00,
+  "AdressID": "00000000-0000-0000-0000-000000000000",
+  "ShippingAddress": {
+    "Id": "00000000-0000-0000-0000-000000000000",
+    "Street": "Bliss",
+    "City": "Beirut",
+    "State": "NA",
+    "ZipCode": "0000",
+    "Country": "Lebanon"
+  },
+  "OrderDate": "2025-05-30T11:50:36.9914039Z",
+  "PaymentMethod": "string",
+  "IsPaid": false,
+  "CustomerId": null,
+  "Customer": null,
+  "IsGuestOrder": true,
+  "Status": 0
+}

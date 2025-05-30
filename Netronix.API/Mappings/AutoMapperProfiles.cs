@@ -15,14 +15,14 @@ namespace Netronix.API.Mappings
             CreateMap<Tag,CreateTagDto>().ReverseMap();
             CreateMap<Tag,UpdateTagDto>().ReverseMap();
             CreateMap<Order, OrderDto>().ReverseMap();
-            CreateMap<Order,CreateOrderDto>().ForMember(dest => dest.items, opt =>opt.Ignore()).ReverseMap();
-            CreateMap<Order, UpdateOrderRequestDto>().ForMember(dest => dest.items, opt => opt.Ignore()).ReverseMap();
-            CreateMap<OrderItemDto, OrderItem>().ReverseMap();
+            CreateMap<Order,CreateOrderDto>().ReverseMap();
+            CreateMap<Order, UpdateOrderRequestDto>().ReverseMap();
+            CreateMap<CreateOrderItemDto, OrderItem>().ReverseMap();
             CreateMap<Adress, AdressDto>().ReverseMap();
             CreateMap<VariantOption,VariantOptionsDto>().ReverseMap();
             CreateMap<ProductVariant,VariantsDto>().ReverseMap();
             CreateMap<ProductTags, ProductTagDto>().ReverseMap();
-        
+            CreateMap<SelectedVariantOption, SelectedVariantsDto>().ReverseMap();
         
         
         }

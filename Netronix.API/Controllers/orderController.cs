@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Netronix.API.Models.Domains;
 using Netronix.API.Models.DTOs;
 using Netronix.API.Repositories;
+using System.Text.Json;
 
 namespace Netronix.API.Controllers
 {
@@ -26,20 +27,79 @@ namespace Netronix.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromQuery] Guid? Userid, CreateOrderDto createOrderDto)
         {
-            //var items = new List<OrderItem>();
-            //foreach (var item in createOrderDto.items)
-           // {
-            //    var newItem =new OrderItem
-            //    {
-            //        product = await productRepository.GetByIdAsync(item.productID),
-            //        Quantity = item.Quantity
-           //     };
-          //      if (newItem.product == null) return BadRequest();
-           //     items[createOrderDto.items.IndexOf(item)] = newItem;
-           // }
 
-            var order = mapper.Map<Order>(createOrderDto);
-            //order.items = items;
+
+
+
+            var json = JsonSerializer.Serialize(createOrderDto, new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles 
+            });
+
+            Console.WriteLine("DEBUG: Order object before saving:\n" + json);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "orderDto_debug.json");
+            await System.IO.File.WriteAllTextAsync(filePath, json);
+
+
+
+
+
+
+
+
+
+
+
+
+            var Createditems = new List<OrderItem>();
+            foreach(var item in createOrderDto.items)
+            {
+
+                var product = await productRepository.GetByIdAsync(item.productId);
+                if (product == null) return BadRequest("Product not found");
+
+
+                var newItem = mapper.Map<OrderItem>(item);
+                newItem.product = product;
+                newItem.ProductName = product.Name;
+
+                var newSelectedOptions = new List<SelectedVariantOption>();
+                newItem.Id = Guid.NewGuid(); 
+                
+                for (int i = 0; i < item.SelectedOptions.Count; i++) 
+                {
+                    SelectedVariantsDto? option = item.SelectedOptions[i];
+                    var newoption = new SelectedVariantOption
+                  {
+                      Id = Guid.NewGuid(),
+                      ProductVariantId = option.ProductVariantId,
+                      VariantOptionID = option.VariantOptionID,
+                      VariantName = product.Variants
+                          .FirstOrDefault(v => v.Id == option.ProductVariantId)?.Name,
+                      OptionValue = product.Variants
+                          .FirstOrDefault(v => v.Id == option.ProductVariantId)?
+                             .Options.FirstOrDefault(o => o.Id == option.VariantOptionID)?.Value,
+                      PriceAdjustment = product.Variants
+                        .FirstOrDefault(v => v.Id == option.ProductVariantId)?
+                            .Options.FirstOrDefault(o => o.Id == option.VariantOptionID)?.PriceAdjustment ?? 0
+                  };
+                    newSelectedOptions.Add(newoption);
+                }
+                newItem.SelectedOptions = newSelectedOptions;
+                newItem.UnitPrice = product.BasePrice + newSelectedOptions.Sum(x => x.PriceAdjustment);
+                Createditems.Add(newItem);
+                
+            }
+
+            var order = new Order
+            {
+                DeliveryFee = createOrderDto.DeliveryFee,
+                ShippingAddress = mapper.Map<Adress>(createOrderDto.ShippingAddress),
+                PaymentMethod = createOrderDto.PaymentMethod,
+                items = Createditems
+                
+            };
             if (Userid.HasValue)
             {
                 order.CustomerId = Userid.Value;
@@ -49,12 +109,14 @@ namespace Netronix.API.Controllers
             {
                 order.IsGuestOrder = true;
             }
-            return Ok(await orderRepository.CreateAsync(order));
+            var result = await orderRepository.CreateAsync(order);
+            return Ok(mapper.Map<OrderDto>(result));
         }
         
         [HttpGet]
         public async Task<IActionResult> GetAllOrders() {
-            return Ok(await orderRepository.GetAllAsync());
+            var orders = await orderRepository.GetAllAsync();
+            return Ok(mapper.Map<List<OrderDto>>(orders));
         }
         
         [HttpGet]
@@ -62,7 +124,7 @@ namespace Netronix.API.Controllers
         public async Task<IActionResult> GetOrderById([FromRoute] Guid id) {
             var result = await orderRepository.GetByIdAsync(id);
             if (result == null) return NotFound();
-            return Ok(result);
+            return Ok(mapper.Map<Order>(result));
         }
         
         [HttpGet]
@@ -74,26 +136,26 @@ namespace Netronix.API.Controllers
         [HttpPut]
         [Route("{id:Guid}")]
         public async Task<IActionResult> UpdateOrder([FromRoute] Guid id,UpdateOrderRequestDto updateOrderRequestDto) {
-            var items = new List<OrderItem>();
-            foreach (var item in updateOrderRequestDto.items)
-            {
-                var newItem = new OrderItem
-                {
-                    product = await productRepository.GetByIdAsync(item.productID),
-                    Quantity = item.Quantity
-                };
-                if (newItem.product == null) return BadRequest();
-                items[updateOrderRequestDto.items.IndexOf(item)] = newItem;
-            }
+            //var items = new List<OrderItem>();
+            //foreach (var item in updateOrderRequestDto.items)
+            //{
+            //    var newItem = new OrderItem
+            //    {
+            //        product = await productRepository.GetByIdAsync(item.productID),
+            //        Quantity = item.Quantity
+            //    };
+            //    if (newItem.product == null) return BadRequest();
+            //    items[updateOrderRequestDto.items.IndexOf(item)] = newItem;
+            //}
 
             var order = mapper.Map<Order>(updateOrderRequestDto);
-            order.items = items;
+            //order.items = items;
 
             var result = await orderRepository.UpdateAsync(id, order);
             if (result == null) return NotFound();
 
 
-            return Ok(result);
+            return Ok(mapper.Map<Order>(result));
         }
 
         [HttpDelete]

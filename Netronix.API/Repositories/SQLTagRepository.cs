@@ -23,7 +23,7 @@ namespace Netronix.API.Repositories
 
         public async Task<Tag?> DeleteTagAsync(Guid id)
         {
-            var existing = await dbContext.Tags.FirstOrDefaultAsync(p => p.Id == id);
+            var existing = await dbContext.Tags.Include(t => t.ProductTags).FirstOrDefaultAsync(p => p.Id == id);
             if (existing == null) return null;
             dbContext.Tags.Remove(existing);
             await dbContext.SaveChangesAsync();
@@ -32,12 +32,12 @@ namespace Netronix.API.Repositories
 
         public async Task<List<Tag>> GetTagsAsync()
         {
-            return await dbContext.Tags.ToListAsync();
+            return await dbContext.Tags.Include(t => t.ProductTags).ToListAsync();
         }
 
         public async Task<Tag?> UpdateTagAsync(Guid id, Tag tag)
         {
-            var existing = await dbContext.Tags.FirstOrDefaultAsync(p => p.Id == id);
+            var existing = await dbContext.Tags.Include(t => t.ProductTags).FirstOrDefaultAsync(p => p.Id == id);
             if (existing == null) return null;
             existing.Name = tag.Name;
             existing.ProductTags = tag.ProductTags;

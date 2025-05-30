@@ -13,12 +13,15 @@ namespace Netronix.API.Data
         public DbSet<ProductVariant> ProductVariants { get; set; }
         public DbSet<VariantOption> VariantOptions { get; set; }
         public DbSet<Tag> Tags { get; set; }
-        public DbSet<Adress> Addresses { get; set; } // Keep your original class name
+        
+        public DbSet<Adress> Addresses { get; set; } 
         //public DbSet<InventoryItem> InventoryItems { get; set; } // Pascal case
         public DbSet<Order> Orders { get; set; }
-        public DbSet<OrderItem> OrderItems { get; set; } // Pascal case
-        public DbSet<ProductTags> ProductTags { get; set; } // Pascal case
-        public DbSet<Customer> Customers { get; set; } // Added if you have Customer entity
+        public DbSet<OrderItem> OrderItems { get; set; } 
+        public DbSet<ProductTags> ProductTags { get; set; } 
+        public DbSet<Customer> Customers { get; set; } 
+
+        public DbSet<SelectedVariantOption> SelectedVariantOptions { get; set; } 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -34,10 +37,18 @@ namespace Netronix.API.Data
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<Product>()
-                .Property(p => p.Price)
+                .Property(p => p.BasePrice)
                 .HasPrecision(18, 2);
+            modelBuilder.Entity<VariantOption>()
+                .Property(vo => vo.PriceAdjustment)
+                .HasPrecision(10, 2); 
 
- 
+            modelBuilder.Entity<SelectedVariantOption>()
+                .Property(svo => svo.PriceAdjustment)
+                .HasPrecision(10, 2);
+
+
+
 
             modelBuilder.Entity<Order>()
                 .HasMany(o => o.items) 
@@ -103,11 +114,30 @@ namespace Netronix.API.Data
                 .WithMany(o => o.items) 
                 .HasForeignKey(oi => oi.OrderId);
 
+            modelBuilder.Entity<SelectedVariantOption>()
+                .HasOne(svo => svo.OrderItem)
+                .WithMany(oi => oi.SelectedOptions)
+                .HasForeignKey(svo => svo.OrderItemId)
+                .OnDelete(DeleteBehavior.Cascade); // Only this one cascades
 
-         //   modelBuilder.Entity<InventoryItem>()
-         //       .HasOne(ii => ii.Product)
-         //       .WithMany(p => p.Inventory)
-         //       .HasForeignKey(ii => ii.ProductId);
+            modelBuilder.Entity<SelectedVariantOption>()
+                .HasOne(svo => svo.ProductVariant)
+                .WithMany()
+                .HasForeignKey(svo => svo.ProductVariantId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevents cascade path issue
+
+            modelBuilder.Entity<SelectedVariantOption>()
+                .HasOne(svo => svo.VariantOption)
+                .WithMany()
+                .HasForeignKey(svo => svo.VariantOptionID)
+                .OnDelete(DeleteBehavior.Restrict); // Prevents cascade path issue
+
+
+
+            //   modelBuilder.Entity<InventoryItem>()
+            //       .HasOne(ii => ii.Product)
+            //       .WithMany(p => p.Inventory)
+            //       .HasForeignKey(ii => ii.ProductId);
 
             modelBuilder.Entity<Order>()
                 .Ignore(o => o.Subtotal)

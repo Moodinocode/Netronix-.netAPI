@@ -86,7 +86,7 @@ namespace Netronix.API.Repositories
             existing.Name = product.Name;
             existing.brand = product.brand;
             existing.Description = product.Description;
-            existing.Price = product.Price;
+            existing.BasePrice = product.BasePrice;
             existing.ImageUrls = product.ImageUrls;
             existing.IsBestSeller = product.IsBestSeller;
             existing.Variants = product.Variants;
