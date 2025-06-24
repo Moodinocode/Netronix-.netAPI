@@ -5,7 +5,7 @@ namespace Netronix.API.Data
 {
     public class NetronixDbContext : DbContext
     {
-        public NetronixDbContext(DbContextOptions options) : base(options)
+        public NetronixDbContext(DbContextOptions<NetronixDbContext> options) : base(options)
         {
         }
 

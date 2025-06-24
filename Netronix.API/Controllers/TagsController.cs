@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Netronix.API.Data;
@@ -27,6 +28,7 @@ namespace Netronix.API.Controllers
             return Ok(mapper.Map<List<TagDto>>(tags));
         }
         [HttpPost]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> CreateTag([FromBody] CreateTagDto createTagDto)
         {
             var tag = await tagRepository.AddTagAsync(mapper.Map<Tag>(createTagDto));
@@ -34,6 +36,7 @@ namespace Netronix.API.Controllers
         }
         [HttpPut]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> UpdateTag([FromRoute] Guid id, [FromBody] UpdateTagDto updateTagDto)
         {
             var tag = await tagRepository.UpdateTagAsync(id,mapper.Map<Tag>(updateTagDto));
@@ -45,6 +48,7 @@ namespace Netronix.API.Controllers
         }
         [HttpDelete]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> DeleteTag([FromRoute] Guid id)
         {
             var tag = await tagRepository.DeleteTagAsync(id);

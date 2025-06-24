@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,13 +16,13 @@ namespace Netronix.API.Controllers
     {
         private readonly IProductRepository productRepository;
         private readonly IMapper mapper;
-
+ 
         public productController(IProductRepository productRepository,IMapper mapper)
         {
             this.productRepository = productRepository;
             this.mapper = mapper;
         }
-
+ 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -57,7 +58,8 @@ namespace Netronix.API.Controllers
             return Ok(mapper.Map<ProductDto>(productDomainModel));
         }
 
-        [HttpPost] 
+        [HttpPost]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> AddProduct([FromBody] AddProductRequestDto addProductRequestDto) {
             var product = await productRepository.AddProductAsync(mapper.Map<Product>(addProductRequestDto));
             return Ok(mapper.Map<ProductDto>(product));
@@ -65,6 +67,7 @@ namespace Netronix.API.Controllers
 
         [HttpDelete]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> DeleteProduct([FromRoute] Guid id) {
             var product = await productRepository.DeleteProductAsync(id);
             if (product == null) {
@@ -75,6 +78,7 @@ namespace Netronix.API.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, UpdateProductRequestDto productRequestDto) {
             var product = mapper.Map<Product>(productRequestDto);
             product = await productRepository.UpdateProductAsync(id,product);

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -114,6 +115,7 @@ namespace Netronix.API.Controllers
         }
         
         [HttpGet]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> GetAllOrders() {
             var orders = await orderRepository.GetAllAsync();
             return Ok(mapper.Map<List<OrderDto>>(orders));
@@ -135,6 +137,7 @@ namespace Netronix.API.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> UpdateOrder([FromRoute] Guid id,UpdateOrderRequestDto updateOrderRequestDto) {
             //var items = new List<OrderItem>();
             //foreach (var item in updateOrderRequestDto.items)
@@ -160,6 +163,7 @@ namespace Netronix.API.Controllers
 
         [HttpDelete]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Admin,Ops")]
         public async Task<IActionResult> DeleteOrder([FromRoute] Guid id)
         {
             var deletedOrder = await orderRepository.DeleteAsync(id);
