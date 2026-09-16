@@ -12,12 +12,12 @@ namespace Netronix.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class productController : ControllerBase
+    public class ProductController : ControllerBase
     {
         private readonly IProductRepository productRepository;
         private readonly IMapper mapper;
  
-        public productController(IProductRepository productRepository,IMapper mapper)
+        public ProductController(IProductRepository productRepository,IMapper mapper)
         {
             this.productRepository = productRepository;
             this.mapper = mapper;

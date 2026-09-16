@@ -45,16 +45,6 @@ namespace Netronix.API.Repositories
 
 
 
-            var json = JsonSerializer.Serialize(order, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles // in case of circular references
-            });
-
-            Console.WriteLine("DEBUG: Order object before saving:\n" + json);
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "order_debug.json");
-            await File.WriteAllTextAsync(filePath, json);
-
             await dbContext.Orders.AddAsync(order);
             await dbContext.SaveChangesAsync();
             return order;
@@ -88,9 +78,15 @@ namespace Netronix.API.Repositories
                 .FirstOrDefaultAsync(o => o.Id == id);
         }
 
-        public Task<List<Order>> GetOrdersByUserIdAsync(Guid userId)
+        public async Task<List<Order>> GetOrdersByUserIdAsync(Guid userId)
         {
-            throw new NotImplementedException();
+            return await dbContext.Orders
+                .Include(o => o.items)
+                    .ThenInclude(o => o.product)
+                .Include(o => o.items)
+                    .ThenInclude(i => i.SelectedOptions)
+                .Where(o => o.CustomerId == userId)
+                .OrderByDescending(x => x.OrderDate).ToListAsync();
         }
 
         public async Task<Order?> UpdateAsync(Guid Id, Order order)

@@ -12,13 +12,13 @@ namespace Netronix.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class orderController : ControllerBase
+    public class OrderController : ControllerBase
     {
         private readonly IMapper mapper;
         private readonly IOrderRepository orderRepository;
         private readonly IProductRepository productRepository;
 
-        public orderController(IMapper mapper, IOrderRepository orderRepository,IProductRepository productRepository)
+        public OrderController(IMapper mapper, IOrderRepository orderRepository,IProductRepository productRepository)
         {
             this.mapper = mapper;
             this.orderRepository = orderRepository;
@@ -28,31 +28,6 @@ namespace Netronix.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromQuery] Guid? Userid, CreateOrderDto createOrderDto)
         {
-
-
-
-
-            var json = JsonSerializer.Serialize(createOrderDto, new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles 
-            });
-
-            Console.WriteLine("DEBUG: Order object before saving:\n" + json);
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "orderDto_debug.json");
-            await System.IO.File.WriteAllTextAsync(filePath, json);
-
-
-
-
-
-
-
-
-
-
-
-
             var Createditems = new List<OrderItem>();
             foreach(var item in createOrderDto.items)
             {
@@ -126,13 +101,14 @@ namespace Netronix.API.Controllers
         public async Task<IActionResult> GetOrderById([FromRoute] Guid id) {
             var result = await orderRepository.GetByIdAsync(id);
             if (result == null) return NotFound();
-            return Ok(mapper.Map<Order>(result));
+            return Ok(mapper.Map<OrderDto>(result));
         }
         
         [HttpGet]
         [Route("user/{Userid:Guid}")]
         public async Task<IActionResult> GetOrdersByUserId([FromRoute] Guid Userid) {
-            return Ok(new { message = "Order by user ID" });
+            var orders = await orderRepository.GetOrdersByUserIdAsync(Userid);
+            return Ok(mapper.Map<List<OrderDto>>(orders));
         }
 
         [HttpPut]
@@ -157,8 +133,7 @@ namespace Netronix.API.Controllers
             var result = await orderRepository.UpdateAsync(id, order);
             if (result == null) return NotFound();
 
-
-            return Ok(mapper.Map<Order>(result));
+            return Ok(mapper.Map<OrderDto>(result));
         }
 
         [HttpDelete]
